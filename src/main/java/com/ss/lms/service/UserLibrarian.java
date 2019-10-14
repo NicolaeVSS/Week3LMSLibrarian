@@ -1,0 +1,91 @@
+package com.ss.lms.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.ss.lms.dao.BookCopyDataAccess;
+import com.ss.lms.dao.BookDataAccess;
+import com.ss.lms.dao.LibraryBranchDataAccess;
+import com.ss.lms.entity.Book;
+import com.ss.lms.entity.BookCopy;
+import com.ss.lms.entity.LibraryBranch;
+import com.ss.lms.entity.id.BookCopyId;
+
+@Component
+public class UserLibrarian {
+//
+//	private DataAccess<Book> bookDao = null;
+//	private DataAccess<LibraryBranch> libraryBranchDao = null;
+//	private DataAccess<BookCopy> bookCopyDao = null;
+//	
+//	public UserLibrarian(BookDataAccess bookDao, LibraryBranchDataAccess libraryBranchDao, BookCopyDataAccess bookCopyDao) {
+//		this.bookDao = bookDao;
+//		this.libraryBranchDao = libraryBranchDao;
+//		this.bookCopyDao = bookCopyDao;
+//	}
+//	
+	@Autowired
+	BookDataAccess bookDao;
+
+	@Autowired
+	LibraryBranchDataAccess libraryBranchDao;
+
+	@Autowired
+	BookCopyDataAccess bookCopyDao;
+
+	
+	public void createBookCopy(BookCopy bookCopy) {
+		bookCopyDao.save(bookCopy);
+	}
+
+	public Iterable<Book> readAllBooks() {
+		return bookDao.findAll();
+	}
+	
+	public Optional<Book> readBookById(Integer bookId) {
+		return bookDao.findById(bookId);
+	}
+
+	
+	public Optional<LibraryBranch> readLibraryBranchById(Integer branchId) {
+		return libraryBranchDao.findById(branchId);
+	}
+
+	public Iterable<LibraryBranch> readAllLibraryBranches() {
+
+		return libraryBranchDao.findAll();
+	}
+	
+	public Iterable<BookCopy> readAllBookCopies() {
+		// System.out.println("Reading Book Copies");
+		return bookCopyDao.findAll();
+	}
+	
+	public Optional<BookCopy> readBookCopyById(Integer bookId, Integer branchId) {
+		// System.out.println("Reading Book Copies");
+		return bookCopyDao.findById(new BookCopyId(bookId, branchId));
+	}
+
+	
+	public void updateLibraryBranch(LibraryBranch libraryBranch) {
+		System.out.println(libraryBranch.getBranchId()+ " " + libraryBranch.getBranchName() + " " + libraryBranch.getBranchAddress());
+
+		libraryBranchDao.save(libraryBranch);
+
+	}
+
+	
+	public void updateBookCopy(BookCopy bookCopy) {
+		bookCopyDao.save(bookCopy);
+
+	}
+
+	
+	public void deleteBookCopy(int bookId, int branchId) {
+		bookCopyDao.deleteById(new BookCopyId(bookId, branchId));
+
+	}
+
+}
