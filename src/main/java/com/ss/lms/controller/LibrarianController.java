@@ -82,53 +82,77 @@ public class LibrarianController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<Optional<LibraryBranch>>(libraryBranch, HttpStatus.OK);
-//		return userLibrarian.readLibraryBranchById(branchId);
 	}
 
+	// Gets id from URI params
 	// Reading a book copy by its bookId and its branchId
 	@GetMapping(path = "/bookcopy/book/{bookId}/branch/{branchId}")
 	public ResponseEntity<Optional<BookCopy>> readBookCopyById(@PathVariable Integer bookId,
 			@PathVariable Integer branchId) {
 		if (!userLibrarian.readBookById(bookId).isPresent()
 				|| !userLibrarian.readLibraryBranchById(branchId).isPresent()) {
+			//Code 404 if the records are not found in table
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Optional<BookCopy> bookCopy = userLibrarian.readBookCopyById(bookId, branchId);
 		if(!bookCopy.isPresent()) {
+			//if the bookCopy isnt found returns status code 404
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
+		//Returns 200 if is passes constraints
 		return new ResponseEntity<Optional<BookCopy>>(bookCopy, HttpStatus.OK);
 	}
 
-	@PutMapping(path = "/branch/")
+	//Put request for updating a library branch
+	//Gets the ids both from the json object and the URI
+	//returns the corresponding httpstatus
+	@PutMapping(path = "/branch/{branchId}")
 	public ResponseEntity<HttpStatus> updateLibraryBranch(@RequestBody LibraryBranch libraryBranch) {
-		// System.out.println(libraryBranch.getBranchId()+ " " +
-		// libraryBranch.getBranchName() + " " + libraryBranch.getBranchAddress());
+		if(libraryBranch.getBranchAddress() == null || libraryBranch.getBranchName() == null
+				|| "".equals(libraryBranch.getBranchName()) || "".equals(libraryBranch.getBranchAddress())){
+			//Code 400 for invalid request(nulls or blanks found)
+			return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
+		}
 		if (!userLibrarian.readLibraryBranchById(libraryBranch.getBranchId()).isPresent()) {
+			//Code 404 if the branch isnt found in the table
 			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
 		}
-
+		//Updates and returns status code 200
 		userLibrarian.updateLibraryBranch(libraryBranch);
 
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 
-	@PutMapping(path = "/bookCopy/")
+	
+	//Put request for updating a book copy
+	//Gets the ids both from the json object and the URI
+	//returns the corresponding httpstatus
+	@PutMapping(path = "/bookCopy/book/{bookId}/branch/{branchId}")
 	public ResponseEntity<HttpStatus> updateBookCopy(@RequestBody BookCopy bookCopy) {
+		if(bookCopy.getNoOfCopies() == null || bookCopy.getBookCopyId() == null
+				|| bookCopy.getBookCopyId().getBookId() == null || bookCopy.getBookCopyId().getBranchId() == null) {
+			//If any nulls are found returns a bad request status code
+			return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
+		}
 		if (!userLibrarian.readLibraryBranchById(bookCopy.getBookCopyId().getBranchId()).isPresent()
 				|| !userLibrarian.readBookById(bookCopy.getBookCopyId().getBookId()).isPresent()) {
+			//If either of the branch or book 
 			return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
 		}
 		if (userLibrarian.readBookCopyById(bookCopy.getBookCopyId().getBookId(), bookCopy.getBookCopyId().getBranchId())
 				.isPresent()) {
 			userLibrarian.createBookCopy(bookCopy);
-			return new ResponseEntity<HttpStatus>(HttpStatus.CREATED);
+			//If the bookcopy id was found in the existing tables, it will update the existing record
+			//and send status code 200
+			return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 		}
 		return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
 		// Status code 204
 	}
 
+	//Makes a delete request
+	//Gets params from URI
+	//Doesn't need to null check id's because URI must include them or 500 error
 	@DeleteMapping(value = "/bookCopy/book/{bookId}/branch/{branchId}")
 	public ResponseEntity<HttpStatus> deleteBookCopy(@PathVariable Integer bookId, @PathVariable Integer branchId) {
 		if(!userLibrarian.readBookCopyById(bookId, branchId).isPresent()) {
