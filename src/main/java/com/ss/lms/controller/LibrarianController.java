@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,8 @@ public class LibrarianController {
 	@Autowired
 	UserLibrarian userLibrarian;
 
-	@PostMapping(value = "/bookcopy/")
+	@PostMapping(value = "/bookcopy/",consumes = {"application/xml", "application/json"},
+										produces = {"application/xml", "application/json"})
 	public ResponseEntity<HttpStatus> createBookCopy(@RequestBody BookCopy bookCopy) {
 		if (userLibrarian.readBookCopyById(bookCopy.getBookCopyId().getBookId(), bookCopy.getBookCopyId().getBranchId())
 				.isPresent()) {
@@ -42,7 +44,7 @@ public class LibrarianController {
 		// Code 201
 	}
 
-	@GetMapping(value = "/books/")
+	@GetMapping(value = "/books/",produces = {"application/xml", "application/json"})
 	public ResponseEntity<Iterable<Book>> readAllBooks() {
 		Iterable<Book> books = userLibrarian.readAllBooks();
 		if (!books.iterator().hasNext()) {
@@ -53,7 +55,7 @@ public class LibrarianController {
 	}
 
 	// Reading a single book by its id
-	@GetMapping(path = "/books/{bookId}")
+	@GetMapping(path = "/books/{bookId}",produces = {"application/xml", "application/json"})
 	public ResponseEntity<Optional<Book>> readBookById(@PathVariable Integer bookId) {
 		Optional<Book> book = userLibrarian.readBookById(bookId);
 		if (!book.isPresent()) {
@@ -63,7 +65,7 @@ public class LibrarianController {
 	}
 
 	// Reading all the libraryBranches in the table
-	@GetMapping(path = "/branch/")
+	@GetMapping(path = "/branch/",produces = {"application/xml", "application/json"})
 	public ResponseEntity<Iterable<LibraryBranch>> readAllLibraryBranches() {
 		Iterable<LibraryBranch> branches = userLibrarian.readAllLibraryBranches();
 		if (branches.iterator().hasNext()) {
@@ -74,7 +76,7 @@ public class LibrarianController {
 
 	// Reading a single libraryBranch by its id
 	// Returns a response entity with
-	@GetMapping(value = "/branch/{branchId}")
+	@GetMapping(value = "/branch/{branchId}",produces = {"application/xml", "application/json"})
 	public ResponseEntity<Optional<LibraryBranch>> readLibraryBranchById(@PathVariable Integer branchId) {
 		System.out.println("Hello.");
 		Optional<LibraryBranch> libraryBranch = userLibrarian.readLibraryBranchById(branchId);
@@ -86,7 +88,7 @@ public class LibrarianController {
 
 	// Gets id from URI params
 	// Reading a book copy by its bookId and its branchId
-	@GetMapping(path = "/bookcopy/book/{bookId}/branch/{branchId}")
+	@GetMapping(path = "/bookcopy/book/{bookId}/branch/{branchId}",produces = {"application/xml", "application/json"})
 	public ResponseEntity<Optional<BookCopy>> readBookCopyById(@PathVariable Integer bookId,
 			@PathVariable Integer branchId) {
 		if (!userLibrarian.readBookById(bookId).isPresent()
@@ -106,7 +108,7 @@ public class LibrarianController {
 	//Put request for updating a library branch
 	//Gets the ids both from the json object and the URI
 	//returns the corresponding httpstatus
-	@PutMapping(path = "/branch/{branchId}")
+	@PutMapping(path = "/branch/{branchId}",consumes = {"application/xml", "application/json"})
 	public ResponseEntity<HttpStatus> updateLibraryBranch(@RequestBody LibraryBranch libraryBranch) {
 		if(libraryBranch.getBranchAddress() == null || libraryBranch.getBranchName() == null
 				|| "".equals(libraryBranch.getBranchName()) || "".equals(libraryBranch.getBranchAddress())){
