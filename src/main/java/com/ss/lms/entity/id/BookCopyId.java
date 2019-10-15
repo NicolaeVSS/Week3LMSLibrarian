@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 import javax.persistence.Embeddable;
 
-@Embeddable
 public class BookCopyId implements Serializable {
+
 
 	/**
 	 * 
@@ -15,8 +15,6 @@ public class BookCopyId implements Serializable {
 	private Integer branchId;
 	
 	public BookCopyId() {
-		bookId = null;
-		branchId = null;
 	}
 	
 	
@@ -83,5 +81,8 @@ public class BookCopyId implements Serializable {
 	public void setBranchId(Integer branchId) {
 		this.branchId = branchId;
 	}
-	
+	@Override
+	public String toString() {
+		return "BookCopyId [bookId=" + bookId + ", branchId=" + branchId + "]";
+	}
 }

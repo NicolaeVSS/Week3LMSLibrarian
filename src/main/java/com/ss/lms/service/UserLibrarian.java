@@ -59,19 +59,15 @@ public class UserLibrarian {
 	}
 	
 	public Iterable<BookCopy> readAllBookCopies() {
-		// System.out.println("Reading Book Copies");
 		return bookCopyDao.findAll();
 	}
 	
-	public Optional<BookCopy> readBookCopyById(Integer bookId, Integer branchId) {
-		// System.out.println("Reading Book Copies");
-		return bookCopyDao.findById(new BookCopyId(bookId, branchId));
+	public Optional<BookCopy> readBookCopyById(BookCopyId bookCopyId) {
+		return bookCopyDao.findById(bookCopyId);
 	}
 
 	
 	public void updateLibraryBranch(LibraryBranch libraryBranch) {
-		System.out.println(libraryBranch.getBranchId()+ " " + libraryBranch.getBranchName() + " " + libraryBranch.getBranchAddress());
-
 		libraryBranchDao.save(libraryBranch);
 
 	}
