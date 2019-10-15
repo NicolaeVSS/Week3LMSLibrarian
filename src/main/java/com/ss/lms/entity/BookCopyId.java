@@ -1,4 +1,4 @@
-package com.ss.lms.entity.id;
+package com.ss.lms.entity;
 
 import java.io.Serializable;
 

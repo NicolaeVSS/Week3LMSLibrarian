@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ss.lms.entity.Book;
 import com.ss.lms.entity.BookCopy;
 import com.ss.lms.entity.LibraryBranch;
-import com.ss.lms.entity.id.BookCopyId;
+import com.ss.lms.entity.BookCopyId;
 import com.ss.lms.service.UserLibrarian;
 
 @RestController

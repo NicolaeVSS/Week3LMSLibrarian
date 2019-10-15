@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 
-import com.ss.lms.entity.id.BookCopyId;
+import com.ss.lms.entity.BookCopyId;
 
 @Entity
 @IdClass(BookCopyId.class)

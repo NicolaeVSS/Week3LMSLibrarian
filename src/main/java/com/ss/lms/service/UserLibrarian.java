@@ -11,7 +11,7 @@ import com.ss.lms.dao.LibraryBranchDataAccess;
 import com.ss.lms.entity.Book;
 import com.ss.lms.entity.BookCopy;
 import com.ss.lms.entity.LibraryBranch;
-import com.ss.lms.entity.id.BookCopyId;
+import com.ss.lms.entity.BookCopyId;
 
 @Component
 public class UserLibrarian {
