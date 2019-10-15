@@ -30,17 +30,17 @@ public class LibrarianController {
 
 	@PostMapping(value = "/bookcopy/",consumes = {"application/xml", "application/json"},
 										produces = {"application/xml", "application/json"})
-	public ResponseEntity<HttpStatus> createBookCopy(@RequestBody BookCopy bookCopy) {
-		if (userLibrarian.readBookCopyById(bookCopy.getBookCopyId().getBookId(), bookCopy.getBookCopyId().getBranchId())
+	public ResponseEntity<BookCopy> createBookCopy(@RequestBody BookCopy bookCopy) {
+		if (userLibrarian.readBookCopyById(new BookCopyId(bookCopy.getBookId(), bookCopy.getBranchId()))
 				.isPresent()) {
-			return new ResponseEntity<HttpStatus>(HttpStatus.CONFLICT);
+			return new ResponseEntity<BookCopy>(new BookCopy(),HttpStatus.CONFLICT);
 		}
-		if (!userLibrarian.readLibraryBranchById(bookCopy.getBookCopyId().getBranchId()).isPresent()
-				|| !userLibrarian.readBookById(bookCopy.getBookCopyId().getBookId()).isPresent()) {
-			return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
+		if (!userLibrarian.readLibraryBranchById(bookCopy.getBranchId()).isPresent()
+				|| !userLibrarian.readBookById(bookCopy.getBookId()).isPresent()) {
+			return new ResponseEntity<BookCopy>(new BookCopy(), HttpStatus.BAD_REQUEST);
 		}
 		userLibrarian.createBookCopy(bookCopy);
-		return new ResponseEntity<HttpStatus>(HttpStatus.CREATED);
+		return new ResponseEntity<BookCopy>(new BookCopy(), HttpStatus.CREATED);
 		// Code 201
 	}
 
@@ -91,30 +91,32 @@ public class LibrarianController {
 	// Gets id from URI params
 	// Reading a book copy by its bookId and its branchId
 	@GetMapping(path = "/bookcopy/book/{bookId}/branch/{branchId}",produces = {"application/xml", "application/json"})
-	public ResponseEntity<Optional<BookCopy>> readBookCopyById(@PathVariable Integer bookId,
+	public ResponseEntity<BookCopy> readBookCopyById(@PathVariable Integer bookId,
 			@PathVariable Integer branchId) {
-		System.out.println("Hello...");
-		if (!userLibrarian.readBookById(bookId).isPresent()
-				|| !userLibrarian.readLibraryBranchById(branchId).isPresent()) {
-			//Code 404 if the records are not found in table
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		Optional<BookCopy> bookCopy = userLibrarian.readBookCopyById(bookId, branchId);
+		Optional<BookCopy> bookCopy = userLibrarian.readBookCopyById(new BookCopyId(bookId, branchId));
+
+		System.out.println(bookId + "  1111111111 " + branchId);
 		if(!bookCopy.isPresent()) {
 			//if the bookCopy isnt found returns status code 404
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<BookCopy>(new BookCopy(),HttpStatus.NOT_FOUND);
 		}
 		//Returns 200 if is passes constraints
-		return new ResponseEntity<Optional<BookCopy>>(bookCopy, HttpStatus.OK);
+		return new ResponseEntity<BookCopy>(bookCopy.get(), HttpStatus.OK);
 	}
 
 	//Put request for updating a library branch
 	//Gets the ids both from the json object and the URI
 	//returns the corresponding httpstatus
 	@PutMapping(path = "/branch/{branchId}",consumes = {"application/xml", "application/json"})
-	public ResponseEntity<LibraryBranch> updateLibraryBranch(@RequestBody LibraryBranch libraryBranch) {
-		if(libraryBranch.getBranchAddress() == null || libraryBranch.getBranchName() == null
-				|| "".equals(libraryBranch.getBranchName()) || "".equals(libraryBranch.getBranchAddress())){
+	public ResponseEntity<LibraryBranch> updateLibraryBranch(@PathVariable Integer branchId, @RequestBody LibraryBranch libraryBranch) {
+		if(libraryBranch.getBranchId() != null){
+			return new ResponseEntity<LibraryBranch>(new LibraryBranch(),HttpStatus.BAD_REQUEST);
+		}
+		libraryBranch.setBranchId(branchId);
+		if(libraryBranch.getBranchAddress() == null 
+				|| libraryBranch.getBranchName() == null
+				|| "".equals(libraryBranch.getBranchName()) 
+				|| "".equals(libraryBranch.getBranchAddress())){
 			//Code 400 for invalid request(nulls or blanks found)
 			return new ResponseEntity<LibraryBranch>(new LibraryBranch(),HttpStatus.BAD_REQUEST);
 		}
@@ -136,18 +138,20 @@ public class LibrarianController {
 	public ResponseEntity<BookCopy> updateBookCopy(@PathVariable Integer bookId,
 													 @PathVariable Integer branchId,
 													 @RequestBody BookCopy bookCopy) {
-		if((bookCopy.getBookCopyId().getBookId() != null && bookCopy.getBookCopyId().getBranchId() != null)||
+		if(bookCopy.getBookId() != null || bookCopy.getBranchId() != null||
 				bookCopy.getNoOfCopies() == null) {
 			return new ResponseEntity<BookCopy>(new BookCopy(), HttpStatus.BAD_REQUEST);
 		}
-
+		bookCopy.setBookId(bookId);
+		bookCopy.setBranchId(branchId);
+		
 		if (!userLibrarian.readLibraryBranchById(branchId).isPresent()
 				|| !userLibrarian.readBookById(bookId).isPresent()) {
 			//If either of the branch or book 
 			return new ResponseEntity<BookCopy>(new BookCopy(), HttpStatus.BAD_REQUEST);
 		}
-		if (userLibrarian.readBookCopyById(bookId, branchId).isPresent()) {
-			userLibrarian.updateBookCopy(new BookCopy(new BookCopyId(bookId, branchId), bookCopy.getNoOfCopies()));
+		if (userLibrarian.readBookCopyById(new BookCopyId(bookId, branchId)).isPresent()) {
+			userLibrarian.updateBookCopy(bookCopy);
 			//If the bookcopy id was found in the existing tables, it will update the existing record
 			//and send status code 200
 			return new ResponseEntity<BookCopy>(bookCopy, HttpStatus.OK);
@@ -162,7 +166,7 @@ public class LibrarianController {
 	//Doesn't need to null check id's because URI must include them or 500 error
 	@DeleteMapping(value = "/bookcopy/book/{bookId}/branch/{branchId}")
 	public ResponseEntity<HttpStatus> deleteBookCopy(@PathVariable Integer bookId, @PathVariable Integer branchId) {
-		if(!userLibrarian.readBookCopyById(bookId, branchId).isPresent()) {
+		if(!userLibrarian.readBookCopyById(new BookCopyId(bookId, branchId)).isPresent()) {
 			return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
 		}
 		userLibrarian.deleteBookCopy(bookId, branchId);
