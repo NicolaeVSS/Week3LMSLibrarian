@@ -112,9 +112,15 @@ public class LibrarianController {
 	//Gets the ids both from the json object and the URI
 	//returns the corresponding httpstatus
 	@PutMapping(path = "/branch/{branchId}",consumes = {"application/xml", "application/json"})
-	public ResponseEntity<LibraryBranch> updateLibraryBranch(@RequestBody LibraryBranch libraryBranch) {
-		if(libraryBranch.getBranchAddress() == null || libraryBranch.getBranchName() == null
-				|| "".equals(libraryBranch.getBranchName()) || "".equals(libraryBranch.getBranchAddress())){
+	public ResponseEntity<LibraryBranch> updateLibraryBranch(@PathVariable Integer branchId, @RequestBody LibraryBranch libraryBranch) {
+		if(libraryBranch.getBranchId() != null){
+			return new ResponseEntity<LibraryBranch>(new LibraryBranch(),HttpStatus.BAD_REQUEST);
+		}
+		libraryBranch.setBranchId(branchId);
+		if(libraryBranch.getBranchAddress() == null 
+				|| libraryBranch.getBranchName() == null
+				|| "".equals(libraryBranch.getBranchName()) 
+				|| "".equals(libraryBranch.getBranchAddress())){
 			//Code 400 for invalid request(nulls or blanks found)
 			return new ResponseEntity<LibraryBranch>(new LibraryBranch(),HttpStatus.BAD_REQUEST);
 		}
@@ -140,14 +146,14 @@ public class LibrarianController {
 				bookCopy.getNoOfCopies() == null) {
 			return new ResponseEntity<BookCopy>(new BookCopy(), HttpStatus.BAD_REQUEST);
 		}
-
+		bookCopy.setBookCopyId(new BookCopyId(bookId, branchId));
 		if (!userLibrarian.readLibraryBranchById(branchId).isPresent()
 				|| !userLibrarian.readBookById(bookId).isPresent()) {
 			//If either of the branch or book 
 			return new ResponseEntity<BookCopy>(new BookCopy(), HttpStatus.BAD_REQUEST);
 		}
 		if (userLibrarian.readBookCopyById(bookId, branchId).isPresent()) {
-			userLibrarian.updateBookCopy(new BookCopy(new BookCopyId(bookId, branchId), bookCopy.getNoOfCopies()));
+			userLibrarian.updateBookCopy(bookCopy);
 			//If the bookcopy id was found in the existing tables, it will update the existing record
 			//and send status code 200
 			return new ResponseEntity<BookCopy>(bookCopy, HttpStatus.OK);
