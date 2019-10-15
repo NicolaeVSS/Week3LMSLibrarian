@@ -27,7 +27,8 @@ public class BookCopy implements Serializable {
 	
 	
 	public BookCopy() {
-		
+		this.bookCopyId = new BookCopyId();
+		this.noOfCopies = 0;
 	}
 	
 	public BookCopy(BookCopyId bookCopyId, Integer noOfCopies) {

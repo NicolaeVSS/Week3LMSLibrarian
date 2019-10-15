@@ -15,7 +15,8 @@ public class BookCopyId implements Serializable {
 	private Integer branchId;
 	
 	public BookCopyId() {
-		
+		bookId = null;
+		branchId = null;
 	}
 	
 	

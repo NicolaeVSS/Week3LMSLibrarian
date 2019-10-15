@@ -30,17 +30,17 @@ public class LibrarianController {
 
 	@PostMapping(value = "/bookcopy/",consumes = {"application/xml", "application/json"},
 										produces = {"application/xml", "application/json"})
-	public ResponseEntity<HttpStatus> createBookCopy(@RequestBody BookCopy bookCopy) {
+	public ResponseEntity<BookCopy> createBookCopy(@RequestBody BookCopy bookCopy) {
 		if (userLibrarian.readBookCopyById(bookCopy.getBookCopyId().getBookId(), bookCopy.getBookCopyId().getBranchId())
 				.isPresent()) {
-			return new ResponseEntity<HttpStatus>(HttpStatus.CONFLICT);
+			return new ResponseEntity<BookCopy>(new BookCopy(),HttpStatus.CONFLICT);
 		}
 		if (!userLibrarian.readLibraryBranchById(bookCopy.getBookCopyId().getBranchId()).isPresent()
 				|| !userLibrarian.readBookById(bookCopy.getBookCopyId().getBookId()).isPresent()) {
-			return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<BookCopy>(new BookCopy(), HttpStatus.BAD_REQUEST);
 		}
 		userLibrarian.createBookCopy(bookCopy);
-		return new ResponseEntity<HttpStatus>(HttpStatus.CREATED);
+		return new ResponseEntity<BookCopy>(new BookCopy(), HttpStatus.CREATED);
 		// Code 201
 	}
 
