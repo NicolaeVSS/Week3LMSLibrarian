@@ -4,13 +4,16 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,7 +47,7 @@ public class LibrarianController {
 		// Code 201
 	}
 
-	@GetMapping(value = "/book/",produces = {"application/xml", "application/json"})
+	@GetMapping(value = "/books/",produces = {"application/xml", "application/json"})
 	public ResponseEntity<Iterable<Book>> readAllBooks() {
 		Iterable<Book> books = userLibrarian.readAllBooks();
 		if (!books.iterator().hasNext()) {
@@ -55,18 +58,18 @@ public class LibrarianController {
 	}
 
 	// Reading a single book by its id
-	@GetMapping(path = "/book/{bookId}",produces = {"application/xml", "application/json"})
-	public ResponseEntity<Optional<Book>> readBookById(@PathVariable Integer bookId) {
+	@GetMapping(path = "/book/{bookId}",produces = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.APPLICATION_XML_VALUE })
+	public ResponseEntity<Book> readBookById(@PathVariable Integer bookId, @RequestHeader MultiValueMap<String, String> header) {
 		Optional<Book> book = userLibrarian.readBookById(bookId);
-		System.out.println(book.toString());
 		if (!book.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<Optional<Book>>(book, HttpStatus.OK);
+		return new ResponseEntity<Book>(book.get(), HttpStatus.OK);
 	}
 
 	// Reading all the libraryBranches in the table
-	@GetMapping(path = "/branch/",produces = {"application/xml", "application/json"})
+	@GetMapping(path = "/branches/",produces = {"application/xml", "application/json"})
 	public ResponseEntity<Iterable<LibraryBranch>> readAllLibraryBranches() {
 		Iterable<LibraryBranch> branches = userLibrarian.readAllLibraryBranches();
 		if (branches.iterator().hasNext()) {
